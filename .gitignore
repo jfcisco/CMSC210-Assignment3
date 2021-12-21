@@ -1,0 +1,3 @@
+# Exclude all datasets
+*.csv
+.ipynb_checkpoints/
