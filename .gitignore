@@ -1,3 +1,5 @@
 # Exclude all datasets
 *.csv
 .ipynb_checkpoints/
+[Ll]ib/
+.vscode/
