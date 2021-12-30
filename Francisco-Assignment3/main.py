@@ -1,10 +1,20 @@
 import pandas as pd
+from numpy import mat
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
+
+print("Welcome to the Song Recommender Program!")
+print("Please wait for the program to load.")
 
 # Import songs dataset from the CSV file
 print("Importing songs dataset...")
 songs = pd.read_csv("songs.csv", low_memory=False)
+
+# Copy original title, singer, and composer into a separate columns
+# for retrieval and printing later on
+songs['orig_title'] = songs['title']
+songs['orig_singer'] = songs['singer']
+songs['orig_composer'] = songs['composer']
 
 # Pre-process and clean data
 features = ['title', 'singer', 'composer', 'genre', 'lyrics']
@@ -36,7 +46,21 @@ csim_shape = cosine_sim.shape
 
 # Make a reverse mapping of dataset indices and song names
 songs = songs.reset_index()
-indices = pd.Series(songs.index, index=songs['title']).drop_duplicates()
+indices = pd.Series(songs.index, index=songs['title']).drop_duplicates()  
+
+def find_song(songs, title, singer=None, composer=None):
+    # Create a vector that help look for the song that matches the given title, singer, composer
+    match_vector = songs['orig_title'].str.contains(title, na=False, case=False)
+
+    if singer is not None:
+        print("Singer is not None")
+        match_vector = match_vector & songs['orig_singer'].str.contains(singer, na=False, case=False)
+
+    if composer is not None:
+        print("Composer is not None")
+        match_vector = match_vector & songs['orig_composer'].str.contains(composer, na=False, case=False)
+
+    return songs[match_vector]
 
 # Recommender function that outputs the most similar songs to the given song
 def get_recommendations(title):
@@ -49,7 +73,34 @@ def get_recommendations(title):
     sim_scores = sim_scores[1:11]
     similar_song_indices = [i[0] for i in sim_scores]
 
-    return songs[['title', 'singer']].iloc[similar_song_indices]
+    return songs[['orig_title', 'orig_singer']].iloc[similar_song_indices]
+
+# Interact with the user to get song title
+title = input("Enter a song title: ")
+singer = input("Enter the singer (optional): ")
+composer = input("Enter the composer (optional): ")
+
+matching_song = find_song(songs, title, 
+    singer if singer != "" else None, 
+    composer if composer != "" else None)
+
+number_of_matching_songs = len(matching_song)
+if number_of_matching_songs == 1:
+    print("Found a matching song!")
+    recommendations = get_recommendations(matching_song['title'].values[0])
+    print(f"Here are some songs similar to {title}:")
+    print(recommendations)
+elif number_of_matching_songs == 0:
+    print("No matching songs found!")
+else:
+    print("Too many matching songs!")
+    print("Please be more specific")
+    # TODO: allow a user to select from the top 5 matches
+
+
+# print(f"You entered {title} by {singer} composed by {composer}")
+
+
 
 # print("Songs similar to oldtownroad")
 # similar_to_old_town_road = get_recommendations("oldtownroad")
