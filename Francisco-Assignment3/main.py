@@ -53,11 +53,9 @@ def find_song(songs, title, singer=None, composer=None):
     match_vector = songs['orig_title'].str.contains(title, na=False, case=False)
 
     if singer is not None:
-        print("Singer is not None")
         match_vector = match_vector & songs['orig_singer'].str.contains(singer, na=False, case=False)
 
     if composer is not None:
-        print("Composer is not None")
         match_vector = match_vector & songs['orig_composer'].str.contains(composer, na=False, case=False)
 
     return songs[match_vector]
@@ -95,17 +93,3 @@ elif number_of_matching_songs == 0:
 else:
     print("Too many matching songs!")
     print("Please be more specific")
-    # TODO: allow a user to select from the top 5 matches
-
-
-# print(f"You entered {title} by {singer} composed by {composer}")
-
-
-
-# print("Songs similar to oldtownroad")
-# similar_to_old_town_road = get_recommendations("oldtownroad")
-# print(similar_to_old_town_road)
-
-# print("Songs similar to senorita")
-# senorita = get_recommendations("senorita")
-# print(senorita)
