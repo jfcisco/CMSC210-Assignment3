@@ -9,12 +9,16 @@ print("Please wait for the program to load.")
 # Import songs dataset from the CSV file
 print("Importing songs dataset...")
 songs = pd.read_csv("songs.csv", low_memory=False)
+# Dataset used: Billboard Hot 100 Songs from 1999 to 2019
+# The include .csv file only contains a subset of features from the original dataset.
+# I chose to include only the features required for this assignment
+# Source: https://www.kaggle.com/danield2255/data-on-songs-from-billboard-19992019
 
 # Copy original title, singer, and composer into a separate columns
 # for retrieval and printing later on
-songs['orig_title'] = songs['title']
-songs['orig_singer'] = songs['singer']
-songs['orig_composer'] = songs['composer']
+songs['orig_title'] = songs['title'].fillna('Not Available')
+songs['orig_singer'] = songs['singer'].fillna('Not Available')
+songs['orig_composer'] = songs['composer'].fillna('Not Available')
 
 # Pre-process and clean data
 features = ['title', 'singer', 'composer', 'genre', 'lyrics']
@@ -71,7 +75,7 @@ def get_recommendations(title):
     sim_scores = sim_scores[1:11]
     similar_song_indices = [i[0] for i in sim_scores]
 
-    return songs[['orig_title', 'orig_singer']].iloc[similar_song_indices]
+    return songs[['orig_title', 'orig_singer', 'orig_composer']].iloc[similar_song_indices]
 
 # Interact with the user to get song title
 title = input("Enter a song title: ")
@@ -85,11 +89,18 @@ matching_song = find_song(songs, title,
 number_of_matching_songs = len(matching_song)
 if number_of_matching_songs == 1:
     print("Found a matching song!")
+    user_song = matching_song.iloc[0]
+    print(f"Title: {user_song['orig_title']}") 
+    print(f"Singer: {user_song['orig_singer']}")
+    print(f"Composer: {user_song['orig_composer']}")
+
     recommendations = get_recommendations(matching_song['title'].values[0])
-    print(f"Here are some songs similar to {title}:")
+    print(f"Here are some songs similar to it:")
     print(recommendations)
 elif number_of_matching_songs == 0:
     print("No matching songs found!")
 else:
     print("Too many matching songs!")
     print("Please be more specific")
+
+input("Press any key to exit...")
